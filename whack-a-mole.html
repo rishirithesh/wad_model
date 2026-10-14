@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Whack a Mole</title>
+
+    <style>
+        button {
+            width: 70px;
+            height: 70px;
+            margin: 5px;
+            font-size: 25px;
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Whack a Mole</h1>
+
+    <h2>Time: <span id="time">30</span></h2>
+    <h2>Score: <span id="score">0</span></h2>
+
+    <button onclick="startGame()">Start Game</button>
+
+    <br><br>
+
+    <div id="game">
+        <button onclick="whack(0)"></button>
+        <button onclick="whack(1)"></button>
+        <button onclick="whack(2)"></button>
+        <button onclick="whack(3)"></button>
+        <br>
+        <button onclick="whack(4)"></button>
+        <button onclick="whack(5)"></button>
+        <button onclick="whack(6)"></button>
+        <button onclick="whack(7)"></button>
+        <br>
+        <button onclick="whack(8)"></button>
+        <button onclick="whack(9)"></button>
+        <button onclick="whack(10)"></button>
+        <button onclick="whack(11)"></button>
+    </div>
+
+    <script>
+        let score = 0;
+        let time = 30;
+        let mole = -1;
+        let gameOver = true;
+
+        let squares = document.querySelectorAll("#game button");
+
+        function startGame() {
+            score = 0;
+            time = 30;
+            gameOver = false;
+
+            document.getElementById("score").innerHTML = score;
+            document.getElementById("time").innerHTML = time;
+
+            clearInterval(colourTimer);
+            clearInterval(countdown);
+
+            changeMole();
+
+            colourTimer = setInterval(changeMole, 700);
+
+            countdown = setInterval(function() {
+                time--;
+
+                document.getElementById("time").innerHTML = time;
+
+                if (time == 0) {
+                    gameOver = true;
+                    clearInterval(colourTimer);
+                    clearInterval(countdown);
+                    alert("Game Over! Score: " + score);
+                }
+            }, 1000);
+        }
+
+        function changeMole() {
+            squares.forEach(function(square) {
+                square.style.backgroundColor = "lightgray";
+                square.innerHTML = "";
+            });
+
+            mole = Math.floor(Math.random() * 12);
+
+            squares[mole].style.backgroundColor = "green";
+            squares[mole].innerHTML = "🐹";
+        }
+
+        function whack(number) {
+            if (gameOver == false && number == mole) {
+                score++;
+
+                document.getElementById("score").innerHTML = score;
+
+                changeMole();
+            }
+        }
+
+        let colourTimer;
+        let countdown;
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bingo Game</title>
+
+    <style>
+        table {
+            display: inline-table;
+            margin: 10px;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .marked {
+            background-color: lightgreen;
+        }
+
+        .winner {
+            background-color: gold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bingo Game</h1>
+
+    <button onclick="startGame()">Start</button>
+    <button onclick="resetGame()">Reset</button>
+
+    <h3>Time: <span id="time">60</span> seconds</h3>
+    <h3>Current Turn: <span id="turn">Player 1</span></h3>
+
+    <input type="number" id="number"
+           min="1" max="25" placeholder="Enter 1-25">
+
+    <button onclick="markNumber()">Mark</button>
+
+    <h2>Player 1</h2>
+    <table id="card1"></table>
+
+    <h2>Player 2</h2>
+    <table id="card2"></table>
+
+    <h2 id="result"></h2>
+
+    <script>
+        let card1 = [];
+        let card2 = [];
+
+        let called = [];
+        let turn = 1;
+        let time = 60;
+        let gameOver = true;
+        let timer;
+
+        function startGame() {
+            resetGame();
+
+            card1 = createCard();
+            card2 = createCard();
+
+            showCard("card1", card1);
+            showCard("card2", card2);
+
+            gameOver = false;
+
+            timer = setInterval(function() {
+                time--;
+
+                document.getElementById("time").innerHTML = time;
+
+                if (time == 0) {
+                    gameOver = true;
+                    clearInterval(timer);
+                    document.getElementById("result").innerHTML =
+                        "Time Over!";
+                }
+            }, 1000);
+        }
+
+        function createCard() {
+            let numbers = [];
+
+            for (let i = 1; i <= 25; i++) {
+                numbers.push(i);
+            }
+
+            numbers.sort(function() {
+                return Math.random() - 0.5;
+            });
+
+            return numbers;
+        }
+
+        function showCard(id, card) {
+            let html = "";
+
+            for (let i = 0; i < 25; i++) {
+                if (i % 5 == 0) {
+                    html += "<tr>";
+                }
+
+                html += "<td id='" + id + i + "'>";
+                html += card[i];
+                html += "</td>";
+
+                if (i % 5 == 4) {
+                    html += "</tr>";
+                }
+            }
+
+            document.getElementById(id).innerHTML = html;
+        }
+
+        function markNumber() {
+            if (gameOver) {
+                alert("Click Start first!");
+                return;
+            }
+
+            let n = Number(document.getElementById("number").value);
+
+            if (n < 1 || n > 25 || !Number.isInteger(n)) {
+                alert("Enter a number between 1 and 25");
+                return;
+            }
+
+            if (called.includes(n)) {
+                alert("Number already called!");
+                return;
+            }
+
+            called.push(n);
+
+            for (let i = 0; i < 25; i++) {
+                if (card1[i] == n) {
+                    document.getElementById("card1" + i)
+                        .classList.add("marked");
+                }
+
+                if (card2[i] == n) {
+                    document.getElementById("card2" + i)
+                        .classList.add("marked");
+                }
+            }
+
+            let p1 = checkBingo("card1");
+            let p2 = checkBingo("card2");
+
+            if (p1 || p2) {
+                gameOver = true;
+                clearInterval(timer);
+
+                if (p1 && p2) {
+                    document.getElementById("result").innerHTML =
+                        "It's a draw! Both players got Bingo!";
+                } else if (p1) {
+                    document.getElementById("result").innerHTML =
+                        "Player 1 Wins Bingo!";
+                } else {
+                    document.getElementById("result").innerHTML =
+                        "Player 2 Wins Bingo!";
+                }
+
+                return;
+            }
+
+            turn = turn == 1 ? 2 : 1;
+
+            document.getElementById("turn").innerHTML =
+                "Player " + turn;
+
+            document.getElementById("number").value = "";
+        }
+
+        function checkBingo(id) {
+            let cells = document.querySelectorAll("#" + id + " td");
+
+            // Check rows
+            for (let r = 0; r < 5; r++) {
+                let win = true;
+
+                for (let c = 0; c < 5; c++) {
+                    if (!cells[r * 5 + c].classList.contains("marked")) {
+                        win = false;
+                    }
+                }
+
+                if (win) {
+                    for (let c = 0; c < 5; c++) {
+                        cells[r * 5 + c].classList.add("winner");
+                    }
+                    return true;
+                }
+            }
+
+            // Check columns
+            for (let c = 0; c < 5; c++) {
+                let win = true;
+
+                for (let r = 0; r < 5; r++) {
+                    if (!cells[r * 5 + c].classList.contains("marked")) {
+                        win = false;
+                    }
+                }
+
+                if (win) {
+                    for (let r = 0; r < 5; r++) {
+                        cells[r * 5 + c].classList.add("winner");
+                    }
+                    return true;
+                }
+            }
+
+            // Check diagonals
+            let diagonal1 = true;
+            let diagonal2 = true;
+
+            for (let i = 0; i < 5; i++) {
+                if (!cells[i * 5 + i].classList.contains("marked")) {
+                    diagonal1 = false;
+                }
+
+                if (!cells[i * 5 + (4 - i)].classList.contains("marked")) {
+                    diagonal2 = false;
+                }
+            }
+
+            if (diagonal1 || diagonal2) {
+                for (let i = 0; i < 5; i++) {
+                    if (diagonal1) {
+                        cells[i * 5 + i].classList.add("winner");
+                    }
+
+                    if (diagonal2) {
+                        cells[i * 5 + (4 - i)].classList.add("winner");
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        function resetGame() {
+            clearInterval(timer);
+
+            card1 = [];
+            card2 = [];
+            called = [];
+            turn = 1;
+            time = 60;
+            gameOver = true;
+
+            document.getElementById("card1").innerHTML = "";
+            document.getElementById("card2").innerHTML = "";
+            document.getElementById("time").innerHTML = time;
+            document.getElementById("turn").innerHTML = "Player 1";
+            document.getElementById("number").value = "";
+            document.getElementById("result").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
