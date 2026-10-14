@@ -2,11 +2,6 @@
 import { onMounted } from 'vue'
 import { useLibraryStore } from './stores/library'
 
-import AuthSection from './components/AuthSection.vue'
-import BookSection from './components/BookSection.vue'
-import MemberSection from './components/MemberSection.vue'
-import BorrowSection from './components/BorrowSection.vue'
-
 const store = useLibraryStore()
 
 onMounted(() => {
@@ -19,13 +14,16 @@ onMounted(() => {
 <template>
   <main>
     <h1>Library Management</h1>
+    <nav aria-label="Main navigation">
+      <RouterLink to="/auth">Auth</RouterLink>
+      <RouterLink to="/books">Books</RouterLink>
+      <RouterLink to="/borrow">Borrow</RouterLink>
+    </nav>
+
     <p v-if="store.message" class="message-box">
       <b>{{ store.message }}</b>
     </p>
 
-    <AuthSection />
-    <BookSection />
-    <MemberSection />
-    <BorrowSection />
+    <RouterView />
   </main>
 </template>
