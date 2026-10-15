@@ -1,0 +1,66 @@
+
+<html>
+<body>
+    <form method="get" action="hello">
+        Enter your name:
+        <input type="text" name="t1" required>
+        <br><br>
+
+        Enter your age:
+        <input type="number" name="t2" min="0" required>
+        <br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+
+<web-app>
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <servlet>
+        <servlet-name>MyServlet1</servlet-name>
+        <servlet-class>HelloServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>MyServlet1</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+</web-app>
+\
+
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.*;
+
+public class HelloServlet extends HttpServlet {
+
+    public void doGet(HttpServletRequest req,
+                      HttpServletResponse res)
+            throws ServletException, IOException {
+
+        res.setContentType("text/html");
+        PrintWriter pw = res.getWriter();
+
+        String name = req.getParameter("t1");
+        int age = Integer.parseInt(req.getParameter("t2"));
+
+        pw.println("<html><body>");
+
+        if (age >= 18) {
+            pw.println("<h1>" + name + " is eligible for voting</h1>");
+        } else {
+            pw.println("<h1>" + name + " is not eligible for voting</h1>");
+        }
+
+        pw.println("</body></html>");
+
+        pw.close();
+    }
+}
